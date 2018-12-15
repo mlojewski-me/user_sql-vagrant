@@ -2,8 +2,8 @@
 
 # Arguments
 MYSQL_PASSWORD=${1}
-SERVER_NAME=${2}
-SERVER_ADMIN=${3}
+MYSQL_ROOT_PASSWORD=${2}
+SERVER_NAME=${3}
 ADMIN_USER=${4}
 ADMIN_PASSWORD=${5}
 
@@ -18,8 +18,8 @@ apt-get -y -q update
 
 ## Install packages
 ### Supresses password prompt
-echo mysql-server-5.6 mysql-server/root_password password $MYSQL_PASSWORD | debconf-set-selections
-echo mysql-server-5.6 mysql-server/root_password_again password $MYSQL_PASSWORD | debconf-set-selections
+echo mysql-server-5.6 mysql-server/root_password password $MYSQL_ROOT_PASSWORD | debconf-set-selections
+echo mysql-server-5.6 mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD | debconf-set-selections
 apt-get -y -q install git unzip mysql-server-5.6 apache2 memcached php7.0 php7.0-gd php7.0-imagick php7.0-json php7.0-mysql php7.0-curl php7.0-mcrypt php7.0-mbstring php7.0-tokenizer php7.0-xml php7.0-intl php7.0-zip php7.0-apcu php7.0-memcached
 
 # Install application
@@ -44,7 +44,6 @@ echo '
   # General
   ServerName '$SERVER_NAME'
   ServerAlias www.'$SERVER_NAME'
-  ServerAdmin '$SERVER_ADMIN'
 
   SSLEngine on
   SSLCertificateFile      /etc/ssl/certs/apache-selfsigned.crt
@@ -112,11 +111,11 @@ sed -i "s/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cn
 
 echo '[client]
 user = root
-password = '$MYSQL_PASSWORD'
+password = '$MYSQL_ROOT_PASSWORD'
 
 [mysqladmin]
 user = root
-password = '$MYSQL_PASSWORD > /home/vagrant/.my.cnf
+password = '$MYSQL_ROOT_PASSWORD > /home/vagrant/.my.cnf
 cp /home/vagrant/.my.cnf /root/.my.cnf
 
 service mysql restart
@@ -140,3 +139,32 @@ sudo -u www-data /usr/bin/php /var/www/nextcloud/occ background:cron
 echo '
 # nextcloud
 */15  *  *  *  * /usr/bin/php -f /var/www/nextcloud/cron.php' > /var/spool/cron/crontabs/www-data
+
+# Setup user_sql
+cat /vagrant/init.sql | mysql -unextcloud -p"${MYSQL_PASSWORD}"
+
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ app:enable user_sql
+
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.database" --value="nextcloud"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.driver" --value="mysql"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.hostname" --value="localhost"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.password" --value="${MYSQL_PASSWORD}"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.group" --value="sql_group"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.group.column.admin" --value="admin"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.group.column.gid" --value="name"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.group.column.name" --value="display_name"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user" --value="sql_user"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user.column.active" --value="active"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user.column.avatar" --value="provide_avatar"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user.column.email" --value="email"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user.column.home" --value="home"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user.column.name" --value="display_name"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user.column.password" --value="password"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user.column.quota" --value="quota"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user.column.salt" --value="salt"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user.column.uid" --value="username"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user_group" --value="sql_user_group"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user_group.column.gid" --value="group_name"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user_group.column.uid" --value="username"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.username" --value="nextcloud"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "opt.crypto_class" --value="OCA\\UserSQL\\Crypto\\Cleartext"

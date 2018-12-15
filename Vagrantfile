@@ -17,18 +17,21 @@ Vagrant.configure(2) do |config|
   config.ssh.forward_agent = true
 
   # Hostnames
-  config.vm.hostname = "nextcloud.example.org"
+  config.vm.hostname = "nextcloud"
 
   # Private Network
   config.vm.network :private_network, ip: "192.168.50.12"
 
+  # Share Folders
+  config.vm.synced_folder "../user_sql", "/var/www/nextcloud/apps/user_sql", owner: "www-data", group: "www-data"
+
   # Provisioning
   config.vm.provision "provision", type: "shell", :path => "provision.sh", args: [
-    "pass@word1", # MySQL password
-    "nextcloud.example.org", # Server name
-    "nextcloud@example.org", # Server admin
+    "nextcloud", # MySQL nextcloud password
+    "root", # MySQL root password
+    "192.168.50.12", # Server name
     "admin", # Admin username
-    "pass@word1", # Admin password
+    "admin", # Admin password
   ]
 
   config.vm.provision "no-tty-fix", type: "shell", inline: "sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
