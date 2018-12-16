@@ -3,7 +3,7 @@
 
 Vagrant.configure(2) do |config|
   # Box
-  config.vm.box = "ubuntu/trusty64"
+  config.vm.box = "ubuntu/xenial64"
 
   # Box Configurations - more power!
   config.vm.provider :virtualbox do |v|
@@ -32,6 +32,7 @@ Vagrant.configure(2) do |config|
     "192.168.50.12", # Server name
     "admin", # Admin username
     "admin", # Admin password
+    "v15.0.0", # Nextcloud version
   ]
 
   config.vm.provision "no-tty-fix", type: "shell", inline: "sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"

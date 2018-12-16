@@ -6,6 +6,7 @@ MYSQL_ROOT_PASSWORD=${2}
 SERVER_NAME=${3}
 ADMIN_USER=${4}
 ADMIN_PASSWORD=${5}
+NEXTCLOUD_VERSION=${6}
 
 # Basics
 apt-get -y -q update
@@ -18,15 +19,24 @@ apt-get -y -q update
 
 ## Install packages
 ### Supresses password prompt
-echo mysql-server-5.6 mysql-server/root_password password $MYSQL_ROOT_PASSWORD | debconf-set-selections
-echo mysql-server-5.6 mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD | debconf-set-selections
-apt-get -y -q install git unzip mysql-server-5.6 apache2 memcached php7.0 php7.0-gd php7.0-imagick php7.0-json php7.0-mysql php7.0-curl php7.0-mcrypt php7.0-mbstring php7.0-tokenizer php7.0-xml php7.0-intl php7.0-zip php7.0-apcu php7.0-memcached
+echo mysql-server-5.7 mysql-server/root_password password $MYSQL_ROOT_PASSWORD | debconf-set-selections
+echo mysql-server-5.7 mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD | debconf-set-selections
+apt-get -y -q install git mysql-server-5.7 apache2 memcached php7.3 php7.3-gd php7.3-imagick php7.3-json php7.3-mysql php7.3-curl php7.3-mbstring php7.3-tokenizer php7.3-xml php7.3-intl php7.3-zip php7.3-apcu php7.3-memcached
 
 # Install application
-cd /var/www
-curl -O https://download.nextcloud.com/server/releases/latest.zip
-unzip latest.zip
+cd /var/www/nextcloud
+git clone --no-checkout https://github.com/nextcloud/server tmp
+mv tmp/.git .
+rm -rf tmp
+git checkout $NEXTCLOUD_VERSION
+cd 3rdparty
+git submodule update --init
 chown -R www-data:www-data /var/www/nextcloud/
+
+# Install phpunit
+wget https://phar.phpunit.de/phpunit.phar
+chmod +x phpunit.phar
+mv phpunit.phar /usr/local/bin/phpunit
 
 # Setup webserver
 echo '
@@ -86,18 +96,18 @@ a2enmod dir
 a2enmod mime
 a2dissite default-ssl
 
-sed -i 's/^\(;\)\(date\.timezone\s*=\).*$/\2 \"Europe\/Berlin\"/' /etc/php/7.0/apache2/php.ini
-sed -i 's/^\(display_errors\s*=\).*$/\1 On/' /etc/php/7.0/apache2/php.ini
+sed -i 's/^\(;\)\(date\.timezone\s*=\).*$/\2 \"Europe\/Berlin\"/' /etc/php/7.3/apache2/php.ini
+sed -i 's/^\(display_errors\s*=\).*$/\1 On/' /etc/php/7.3/apache2/php.ini
 
 ## Enable Opcache
-sed -i 's/^\(;\)\(opcache\.validate_timestamps\s*=\).*$/\20/' /etc/php/7.0/apache2/php.ini
-sed -i 's/^\(;\)\(opcache\.enable\s*=\).*$/\21/' /etc/php/7.0/apache2/php.ini
-sed -i 's/^\(;\)\(opcache\.enable_cli\s*=\).*$/\21/' /etc/php/7.0/apache2/php.ini
-sed -i 's/^\(;\)\(opcache\.interned_strings_buffer\s*=\).*$/\28/' /etc/php/7.0/apache2/php.ini
-sed -i 's/^\(;\)\(opcache\.memory_consumption\s*=\).*$/\2128/' /etc/php/7.0/apache2/php.ini
-sed -i 's/^\(;\)\(opcache\.max_accelerated_files\s*=\).*$/\210000/' /etc/php/7.0/apache2/php.ini
-sed -i 's/^\(;\)\(opcache\.save_comments\s*=\).*$/\21/' /etc/php/7.0/apache2/php.ini
-sed -i 's/^\(;\)\(opcache\.revalidate_freq\s*=\).*$/\21/' /etc/php/7.0/apache2/php.ini
+sed -i 's/^\(;\)\(opcache\.validate_timestamps\s*=\).*$/\20/' /etc/php/7.3/apache2/php.ini
+sed -i 's/^\(;\)\(opcache\.enable\s*=\).*$/\21/' /etc/php/7.3/apache2/php.ini
+sed -i 's/^\(;\)\(opcache\.enable_cli\s*=\).*$/\21/' /etc/php/7.3/apache2/php.ini
+sed -i 's/^\(;\)\(opcache\.interned_strings_buffer\s*=\).*$/\28/' /etc/php/7.3/apache2/php.ini
+sed -i 's/^\(;\)\(opcache\.memory_consumption\s*=\).*$/\2128/' /etc/php/7.3/apache2/php.ini
+sed -i 's/^\(;\)\(opcache\.max_accelerated_files\s*=\).*$/\210000/' /etc/php/7.3/apache2/php.ini
+sed -i 's/^\(;\)\(opcache\.save_comments\s*=\).*$/\21/' /etc/php/7.3/apache2/php.ini
+sed -i 's/^\(;\)\(opcache\.revalidate_freq\s*=\).*$/\21/' /etc/php/7.3/apache2/php.ini
 
 # Clean up virtual hosts
 rm /etc/apache2/sites-available/default-ssl.conf
@@ -139,12 +149,11 @@ sudo -u www-data /usr/bin/php /var/www/nextcloud/occ background:cron
 echo '
 # nextcloud
 */15  *  *  *  * /usr/bin/php -f /var/www/nextcloud/cron.php' > /var/spool/cron/crontabs/www-data
+sudo -u www-data /usr/bin/php -f /var/www/nextcloud/cron.php
 
 # Setup user_sql
 cat /vagrant/init.sql | mysql -unextcloud -p"${MYSQL_PASSWORD}"
-
 sudo -u www-data /usr/bin/php /var/www/nextcloud/occ app:enable user_sql
-
 sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.database" --value="nextcloud"
 sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.driver" --value="mysql"
 sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.hostname" --value="localhost"
