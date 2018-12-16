@@ -116,8 +116,8 @@ service apache2 restart
 
 # Setup database
 ## Basic
-sed -i 's/^\(max_allowed_packet\s*=\s*\).*$/\1128M/' /etc/mysql/my.cnf
-sed -i "s/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
+sed -i 's/^\(max_allowed_packet\s*=\s*\).*$/\1128M/' /etc/mysql/mysql.conf.d/mysqld.cnf
+sed -i "s/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/mysql.conf.d/mysqld.cnf
 
 echo '[client]
 user = root
