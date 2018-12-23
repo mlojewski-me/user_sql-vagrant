@@ -29,10 +29,10 @@ Vagrant.configure(2) do |config|
   config.vm.provision "provision", type: "shell", :path => "provision.sh", args: [
     "nextcloud", # MySQL nextcloud password
     "root", # MySQL root password
-    "192.168.50.12", # Server name
+    "user_sql", # Server name
     "admin", # Admin username
     "admin", # Admin password
-    "v15.0.0", # Nextcloud version
+    "master", # Nextcloud version
   ]
 
   config.vm.provision "no-tty-fix", type: "shell", inline: "sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"

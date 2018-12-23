@@ -86,7 +86,7 @@ echo '
 ' > /etc/apache2/sites-available/000-default.conf
 sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/C=CO/ST=STATE/L=LOCATION/O=ORGANIZATION/CN=$SERVER_NAME"server -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:1024 -subj "/C=CO/ST=STATE/L=LOCATION/O=ORGANIZATION/CN=$SERVER_NAME"server -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
 
 a2enmod ssl
 a2enmod rewrite
@@ -95,19 +95,6 @@ a2enmod env
 a2enmod dir
 a2enmod mime
 a2dissite default-ssl
-
-sed -i 's/^\(;\)\(date\.timezone\s*=\).*$/\2 \"Europe\/Berlin\"/' /etc/php/7.3/apache2/php.ini
-sed -i 's/^\(display_errors\s*=\).*$/\1 On/' /etc/php/7.3/apache2/php.ini
-
-## Enable Opcache
-sed -i 's/^\(;\)\(opcache\.validate_timestamps\s*=\).*$/\20/' /etc/php/7.3/apache2/php.ini
-sed -i 's/^\(;\)\(opcache\.enable\s*=\).*$/\21/' /etc/php/7.3/apache2/php.ini
-sed -i 's/^\(;\)\(opcache\.enable_cli\s*=\).*$/\21/' /etc/php/7.3/apache2/php.ini
-sed -i 's/^\(;\)\(opcache\.interned_strings_buffer\s*=\).*$/\28/' /etc/php/7.3/apache2/php.ini
-sed -i 's/^\(;\)\(opcache\.memory_consumption\s*=\).*$/\2128/' /etc/php/7.3/apache2/php.ini
-sed -i 's/^\(;\)\(opcache\.max_accelerated_files\s*=\).*$/\210000/' /etc/php/7.3/apache2/php.ini
-sed -i 's/^\(;\)\(opcache\.save_comments\s*=\).*$/\21/' /etc/php/7.3/apache2/php.ini
-sed -i 's/^\(;\)\(opcache\.revalidate_freq\s*=\).*$/\21/' /etc/php/7.3/apache2/php.ini
 
 # Clean up virtual hosts
 rm /etc/apache2/sites-available/default-ssl.conf
