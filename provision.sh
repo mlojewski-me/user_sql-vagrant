@@ -86,7 +86,7 @@ echo '
 ' > /etc/apache2/sites-available/000-default.conf
 sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:1024 -subj "/C=CO/ST=STATE/L=LOCATION/O=ORGANIZATION/CN=$SERVER_NAME"server -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:1024 -subj "/C=CO/ST=STATE/L=LOCATION/O=ORGANIZATION/CN=$SERVER_NAME" -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
 
 a2enmod ssl
 a2enmod rewrite
