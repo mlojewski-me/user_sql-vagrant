@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # Arguments
-MYSQL_PASSWORD=${1}
-MYSQL_ROOT_PASSWORD=${2}
-SERVER_NAME=${3}
-ADMIN_USER=${4}
-ADMIN_PASSWORD=${5}
-NEXTCLOUD_VERSION=${6}
+MYSQL_PASSWORD="${1}"
+MYSQL_ROOT_PASSWORD="${2}"
+SERVER_NAME="${3}"
+ADMIN_USER="${4}"
+ADMIN_PASSWORD="${5}"
+NEXTCLOUD_VERSION="${6}"
 
 # Basics
 apt-get -y -q update
@@ -19,8 +19,8 @@ apt-get -y -q update
 
 ## Install packages
 ### Supresses password prompt
-echo mysql-server-5.7 mysql-server/root_password password $MYSQL_ROOT_PASSWORD | debconf-set-selections
-echo mysql-server-5.7 mysql-server/root_password_again password $MYSQL_ROOT_PASSWORD | debconf-set-selections
+echo mysql-server-5.7 mysql-server/root_password password "$MYSQL_ROOT_PASSWORD" | debconf-set-selections
+echo mysql-server-5.7 mysql-server/root_password_again password "$MYSQL_ROOT_PASSWORD" | debconf-set-selections
 apt-get -y -q install git mysql-server-5.7 apache2 memcached php7.3 php7.3-gd php7.3-imagick php7.3-json php7.3-mysql php7.3-curl php7.3-mbstring php7.3-tokenizer php7.3-xml php7.3-intl php7.3-zip php7.3-apcu php7.3-memcached
 
 # Install application
@@ -28,7 +28,7 @@ cd /var/www/nextcloud
 git clone --no-checkout https://github.com/nextcloud/server tmp
 mv tmp/.git .
 rm -rf tmp
-git checkout $NEXTCLOUD_VERSION
+git checkout "$NEXTCLOUD_VERSION"
 cd 3rdparty
 git submodule update --init
 chown -R www-data:www-data /var/www/nextcloud/
@@ -41,23 +41,8 @@ mv phpunit.phar /usr/local/bin/phpunit
 # Setup webserver
 echo '
 <VirtualHost *:80>
-<IfModule mod_rewrite.c>
-  RewriteEngine On
-
-  # Force to SSL
-  RewriteCond %{HTTPS} off
-  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
-</IfModule>
-</VirtualHost>
-<VirtualHost *:443>
-<IfModule mod_ssl.c>
   # General
   ServerName '$SERVER_NAME'
-  ServerAlias www.'$SERVER_NAME'
-
-  SSLEngine on
-  SSLCertificateFile      /etc/ssl/certs/apache-selfsigned.crt
-  SSLCertificateKeyFile /etc/ssl/private/apache-selfsigned.key
 
   # Site
   DocumentRoot /var/www/nextcloud
@@ -70,10 +55,6 @@ echo '
       Dav off
     </IfModule>
 
-    <IfModule mod_headers.c>
-      Header always set Strict-Transport-Security "max-age=63072000; includeSubdomains;"
-    </IfModule>
-
     SetEnv HOME /var/www/nextcloud
     SetEnv HTTP_HOME /var/www/nextcloud
   </Directory>
@@ -81,15 +62,10 @@ echo '
   # Logs
   ErrorLog ${APACHE_LOG_DIR}/error.log
   CustomLog ${APACHE_LOG_DIR}/access.log combined
-</IfModule>
 </VirtualHost>
 ' > /etc/apache2/sites-available/000-default.conf
 sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s/AllowOverride None/AllowOverride All/' /etc/apache2/apache2.conf
 
-sudo openssl req -x509 -nodes -days 365 -newkey rsa:1024 -subj "/C=CO/ST=STATE/L=LOCATION/O=ORGANIZATION/CN=$SERVER_NAME" -keyout /etc/ssl/private/apache-selfsigned.key -out /etc/ssl/certs/apache-selfsigned.crt
-
-a2enmod ssl
-a2enmod rewrite
 a2enmod headers
 a2enmod env
 a2enmod dir
@@ -103,7 +79,6 @@ service apache2 restart
 
 # Setup database
 ## Basic
-sed -i 's/^\(max_allowed_packet\s*=\s*\).*$/\1128M/' /etc/mysql/mysql.conf.d/mysqld.cnf
 sed -i "s/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/mysql.conf.d/mysqld.cnf
 
 echo '[client]
@@ -136,7 +111,6 @@ sudo -u www-data /usr/bin/php /var/www/nextcloud/occ background:cron
 echo '
 # nextcloud
 */15  *  *  *  * /usr/bin/php -f /var/www/nextcloud/cron.php' > /var/spool/cron/crontabs/www-data
-sudo -u www-data /usr/bin/php -f /var/www/nextcloud/cron.php
 
 # Setup user_sql
 cat /vagrant/init.sql | mysql -unextcloud -p"${MYSQL_PASSWORD}"

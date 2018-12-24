@@ -13,9 +13,6 @@ Vagrant.configure(2) do |config|
     v.customize ["modifyvm", :id, "--natdnsproxy1", "on"]
   end
 
-  # SSH Agent Forwarding
-  config.ssh.forward_agent = true
-
   # Hostnames
   config.vm.hostname = "nextcloud"
 
@@ -34,6 +31,4 @@ Vagrant.configure(2) do |config|
     "admin", # Admin password
     "master", # Nextcloud version
   ]
-
-  config.vm.provision "no-tty-fix", type: "shell", inline: "sed -i '/tty/!s/mesg n/tty -s \\&\\& mesg n/' /root/.profile"
 end
