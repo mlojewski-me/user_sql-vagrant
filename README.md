@@ -9,7 +9,7 @@ The setup requires `../user_sql` to be a valid *user_sql* app directory.
 
 ### Running
 
-To start browsing go to: https://192.168.50.12/
+To start browsing go to: http://192.168.50.12/
 
 The administrator credentials are:
 ```
