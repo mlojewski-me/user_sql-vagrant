@@ -126,6 +126,7 @@ sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db
 sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.group.column.name" --value="display_name"
 sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user" --value="sql_user"
 sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user.column.active" --value="active"
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user.column.disabled" --value="disabled"
 sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user.column.avatar" --value="provide_avatar"
 sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user.column.email" --value="email"
 sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:app:set user_sql "db.table.user.column.home" --value="home"

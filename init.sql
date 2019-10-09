@@ -9,6 +9,7 @@ CREATE TABLE sql_user
   home           TEXT        NULL,
   password       TEXT        NOT NULL,
   active         TINYINT(1)  NOT NULL DEFAULT '1',
+  disabled       TINYINT(1)  NOT NULL DEFAULT '0',
   provide_avatar BOOLEAN     NOT NULL DEFAULT FALSE,
   salt           TEXT        NULL
 );
@@ -36,8 +37,8 @@ DROP PROCEDURE IF EXISTS load_sql_users;
 DELIMITER #
 CREATE PROCEDURE load_sql_users()
   BEGIN
-    DECLARE v_users INT UNSIGNED DEFAULT 100;
-    DECLARE v_groups INT UNSIGNED DEFAULT 5;
+    DECLARE v_users INT UNSIGNED DEFAULT 30;
+    DECLARE v_groups INT UNSIGNED DEFAULT 3;
     DECLARE v_counter INT UNSIGNED DEFAULT 0;
 
     START TRANSACTION;
