@@ -5,7 +5,7 @@ To get it up and running just clone this repository and run `vagrant up`.
 
 ### Requirements
 
-The setup requires `../user_sql` to be a valid *user_sql* app directory.
+The setup requires `../../nextcloud/user_sql` to be a valid *user_sql* app directory.
 
 ### Running
 

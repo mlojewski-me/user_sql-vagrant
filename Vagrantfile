@@ -20,7 +20,7 @@ Vagrant.configure(2) do |config|
   config.vm.network :private_network, ip: "192.168.50.12"
 
   # Share Folders
-  config.vm.synced_folder "../user_sql", "/var/www/nextcloud/apps/user_sql", owner: "www-data", group: "www-data"
+  config.vm.synced_folder "../../nextcloud/user_sql", "/var/www/nextcloud/apps/user_sql", owner: "www-data", group: "www-data"
 
   # Provisioning
   config.vm.provision "provision", type: "shell", :path => "provision.sh", args: [
