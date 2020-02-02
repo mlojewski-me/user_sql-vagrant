@@ -21,7 +21,7 @@ apt-get -y -q update
 ### Supresses password prompt
 echo mysql-server-5.7 mysql-server/root_password password "$MYSQL_ROOT_PASSWORD" | debconf-set-selections
 echo mysql-server-5.7 mysql-server/root_password_again password "$MYSQL_ROOT_PASSWORD" | debconf-set-selections
-apt-get -y -q install git mysql-server-5.7 apache2 memcached php7.3 php7.3-gd php7.3-imagick php7.3-json php7.3-mysql php7.3-curl php7.3-mbstring php7.3-tokenizer php7.3-xml php7.3-intl php7.3-zip php7.3-apcu php7.3-memcached
+apt-get -y -q install git mysql-server-5.7 apache2 memcached php7.4 php7.4-gd php7.4-imagick php7.4-json php7.4-mysql php7.4-curl php7.4-mbstring php7.4-tokenizer php7.4-xml php7.4-intl php7.4-zip php7.4-apcu php7.4-memcached
 
 # Install application
 cd /var/www/nextcloud

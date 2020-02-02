@@ -26,7 +26,7 @@ Vagrant.configure(2) do |config|
   config.vm.provision "provision", type: "shell", :path => "provision.sh", args: [
     "nextcloud", # MySQL nextcloud password
     "root", # MySQL root password
-    "nextcloud", # Server name
+    "nextcloud.vagrant", # Server name
     "admin", # Admin username
     "admin", # Admin password
     "master", # Nextcloud version
