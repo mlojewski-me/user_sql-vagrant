@@ -104,6 +104,7 @@ sudo -u www-data /usr/bin/php /var/www/nextcloud/occ maintenance:install --datab
 sed -i '$i\ \ '\''memcache.local'\'' => '\''\\OC\\Memcache\\APCu'\'',' /var/www/nextcloud/config/config.php
 sed -i '$i\ \ '\''memcache.distributed'\'' => '\''\\OC\\Memcache\\Memcached'\'',' /var/www/nextcloud/config/config.php
 sed -i '$i\ \ '\''memcached_servers'\'' => array\(array\('\''localhost'\'', 11211\),\),' /var/www/nextcloud/config/config.php
+sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:system:set loglevel --value 0 --type integer
 sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:system:set trusted_domains 1 --value=192.168.50.12
 sudo -u www-data /usr/bin/php /var/www/nextcloud/occ config:system:set trusted_domains 2 --value="$SERVER_NAME"
 sudo -u www-data /usr/bin/php /var/www/nextcloud/occ background:cron
