@@ -8,11 +8,6 @@ ADMIN_USER="${4}"
 ADMIN_PASSWORD="${5}"
 NEXTCLOUD_VERSION="${6}"
 
-# Basics
-apt-get -y -q update
-apt-get -y -q upgrade
-apt-get -y -q install build-essential
-
 ## Add PHP repository
 add-apt-repository ppa:ondrej/php
 apt-get -y -q update
@@ -25,11 +20,10 @@ apt-get -y -q install git mysql-server-5.7 apache2 memcached php7.4 php7.4-gd ph
 
 # Install application
 cd /var/www/nextcloud
-git clone --no-checkout https://github.com/nextcloud/server tmp
+git clone --no-checkout https://github.com/nextcloud/server --depth=1 --branch "$NEXTCLOUD_VERSION" tmp
 mv tmp/.git .
 rm -rf tmp
-git checkout "$NEXTCLOUD_VERSION"
-cd 3rdparty
+git reset --hard HEAD
 git submodule update --init
 chown -R www-data:www-data /var/www/nextcloud/
 
